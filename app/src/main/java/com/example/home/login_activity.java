@@ -39,7 +39,7 @@ public class login_activity extends AppCompatActivity {
                     auth.signInWithEmailAndPassword(email, pass)
                             .addOnSuccessListener(authResult -> {
                                 Toast.makeText(login_activity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(login_activity.this, MainActivity.class));
+                                startActivity(new Intent(login_activity.this, navbar.class));
                                 finish();
 
                             });
@@ -57,4 +57,5 @@ public class login_activity extends AppCompatActivity {
         signupRedirectText.setOnClickListener(view -> startActivity(new Intent(login_activity.this, com.example.home.signup.class)));
 
     }
+
 }

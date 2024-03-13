@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Home"
+        android:id="@+id/home"
+   android:icon="@drawable/img" />
+
+    <item android:title="Todo"
+        android:id="@+id/todo"
+        android:icon="@drawable/img_2"
+
+        />
+    <item android:title="Setting"
+        android:id="@+id/setting"
+android:icon="@drawable/img_3"
+
+        />
+</menu>
