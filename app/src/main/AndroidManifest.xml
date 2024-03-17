@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,6 +15,21 @@
         android:theme="@style/Theme.Home"
         tools:targetApi="31">
         <activity
+            android:name=".root"
+            android:exported="false" />
+        <activity
+            android:name=".caps"
+            android:exported="false" />
+        <activity
+            android:name=".teeth"
+            android:exported="false" />
+        <activity
+            android:name=".bridges"
+            android:exported="false" />
+        <activity
+            android:name=".brace"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -21,19 +38,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".navbar"
-            android:exported="false"/>
-        <activity android:name=".card1"
-            android:exported="false"/>
-        <activity android:name=".card2"
-            android:exported="false"/>
-        <activity android:name=".card3"
-            android:exported="false"/>
-        <activity android:name=".card4"
-            android:exported="false"/>
-        <activity android:name=".imageview"
-            android:exported="false"/>
-
+        <activity
+            android:name=".navbar"
+            android:exported="false" />
+        <activity
+            android:name=".card1"
+            android:exported="false" />
+        <activity
+            android:name=".card2"
+            android:exported="false" />
+        <activity
+            android:name=".card3"
+            android:exported="false" />
+        <activity
+            android:name=".card4"
+            android:exported="false" />
+        <activity
+            android:name=".imageview"
+            android:exported="false" />
         <activity
             android:name=".signup"
             android:exported="false" />
