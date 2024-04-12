@@ -55,7 +55,7 @@ public class home extends Fragment implements View.OnClickListener {
         cardView4.setOnClickListener(this);
         cardView5.setOnClickListener(this);
         imageView.setOnClickListener(this);
-  imageView.setOnClickListener(this);
+        imageView.setOnClickListener(this);
 
 
         return view;

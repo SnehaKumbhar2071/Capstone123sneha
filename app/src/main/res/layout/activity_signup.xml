@@ -63,16 +63,6 @@
                 />
 
             <!-- Verification Button -->
-            <Button
-                android:id="@+id/verification_button"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginTop="20dp"
-                android:backgroundTint="@color/blue"
-                android:text="Verify Email"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                app:cornerRadius="20dp" />
 
             <Button
                 android:id="@+id/signup_button"

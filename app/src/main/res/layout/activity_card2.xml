@@ -1,23 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".card2">
+    android:orientation="vertical"
+    tools:context=".card2"
+    android:id="@+id/img">
 
-    <FrameLayout
+    <!--    <Button-->
+    <!--        android:id="@+id/nextfrag2"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_gravity="center"-->
+    <!--        android:layout_marginTop="5dp"-->
+    <!--        android:backgroundTint="#131A42"-->
+    <!--        android:text="Next" />-->
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/pick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="5dp"
+            android:backgroundTint="#131A42"
+            android:text="Pick" />
+
+        <!--        <Button-->
+        <!--            android:id="@+id/capture"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:text="Capture"-->
+        <!--            android:backgroundTint="#131A42"-->
+        <!--            android:layout_gravity="center"-->
+        <!--            android:layout_marginTop="5dp"/>-->
+
+        <Button
+            android:id="@+id/select"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select"
+            android:layout_gravity="center"
+            android:backgroundTint="#131A42"
+            android:layout_marginTop="5dp"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete"
+        android:layout_gravity="center"
+        android:backgroundTint="#131A42"
+        android:layout_marginTop="5dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/totalphotos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="5dp"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_gallery15"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbarStyle="outsideInset"
+        android:layout_marginTop="5dp"/>
+
+    <TextView
+        android:id="@+id/savedimagetitleshruti"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:text="Saved Images"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_saved_imagesshruti"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/framelayout"/>
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:layout_width="417dp"
-        android:layout_height="84dp"
-        android:layout_marginBottom="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:id="@+id/bv"
-        app:menu="@menu/menu"
-        />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:scrollbars="vertical"
+        android:layout_marginTop="5dp"/>
+
+    <ImageView
+        android:id="@+id/zoomImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+</LinearLayout>
