@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "675601195670",
+    "project_id": "dentalrecordhub-da5cc",
+    "storage_bucket": "dentalrecordhub-da5cc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:675601195670:android:469cf2c89cc3becbc6d8b7",
+        "android_client_info": {
+          "package_name": "com.example.home"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDox27LiQedRUP2q9lz4ivZhvgx6fQyZUE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
