@@ -151,6 +151,7 @@ public class update extends AppCompatActivity implements DatePickerDialog.OnDate
             @Override
             public void onClick(View v) {
                 updatePatient();
+
             }
         });
 
@@ -379,10 +380,13 @@ public class update extends AppCompatActivity implements DatePickerDialog.OnDate
             uploadImages("prescription", prescriptionUrls);
 
         }
-        Intent finishDetailIntent = new Intent(update.this, detail.class);
-        finishDetailIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(finishDetailIntent);
-        finish(); // Finish the current activ-ity (update)
+        if (getIntent().getBooleanExtra("finish", false)) {
+            finish();
+        }
+        Intent intent = new Intent(update.this, detail.class);
+        intent.putExtra("Key", key);
+        startActivity(intent);
+        finish();
     }
     private void uploadImages(String field, ArrayList<String> imageUrls) {
         // Get a reference to the Firebase Storage

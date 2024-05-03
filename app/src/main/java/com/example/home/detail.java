@@ -201,6 +201,7 @@ public class detail extends AppCompatActivity {
                         .putExtra("Key", key)
                         .putExtra("followUpDates", followUpDatesList);
                 startActivity(intent);
+                finish();
 
             }
         });
