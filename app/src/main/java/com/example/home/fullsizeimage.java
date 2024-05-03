@@ -1,7 +1,5 @@
 package com.example.home;
 
-
-
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -16,9 +14,9 @@ public class fullsizeimage extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_image_zoom);
+        setContentView(R.layout.activity_fullimageview);
 
-        ImageView imageView = findViewById(R.id.photo_view);
+        ImageView imageView = findViewById(R.id.photo_view789);
 
         // Get the image URI from the intent
         String imageUriString = getIntent().getStringExtra("imageUri");

@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,14 +52,13 @@ public class teeth extends AppCompatActivity {
 
         // Query Firestore data
         firestore.collection("patients")
-                .whereArrayContains("treatment", "tooth").orderBy("date", Query.Direction.ASCENDING)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         dataList.clear();
                         for (DocumentSnapshot doc : task.getResult()) {
                             DataClass dataClass = doc.toObject(DataClass.class);
-                            if (dataClass != null) {
+                            if (dataClass != null && containsIgnoreCase(dataClass.getTreatment(), "Tooth")) {
                                 dataClass.setKey(doc.getId());
                                 dataList.add(dataClass);
                             }
@@ -71,23 +69,9 @@ public class teeth extends AppCompatActivity {
                     }
                     dialog.dismiss();
                 });
-        firestore.collection("patients")
-                .whereArrayContains("treatment", "Tooth").orderBy("date", Query.Direction.ASCENDING)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (DocumentSnapshot doc : task.getResult()) {
-                            DataClass dataClass = doc.toObject(DataClass.class);
-                            if (dataClass != null) {
-                                dataClass.setKey(doc.getId());
-                                dataList.add(dataClass);
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
-                    } else {
-                        // Handle errors
-                    }
-                });
+
+// Method to check if an ArrayList of strings contains a specific string (case-insensitive)
+
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -128,16 +112,16 @@ public class teeth extends AppCompatActivity {
         builder.setView(R.layout.progress_layout);
         AlertDialog dialog = builder.create();
         dialog.show();
+//        String regex = generateCaseInsensitiveRegex("Brace");
 
         firestore.collection("patients")
-                .whereArrayContains("treatment", "tooth").orderBy("date", Query.Direction.ASCENDING)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         dataList.clear();
                         for (DocumentSnapshot doc : task.getResult()) {
                             DataClass dataClass = doc.toObject(DataClass.class);
-                            if (dataClass != null) {
+                            if (dataClass != null && containsIgnoreCase(dataClass.getTreatment(), "Tooth")) {
                                 dataClass.setKey(doc.getId());
                                 dataList.add(dataClass);
                             }
@@ -148,28 +132,23 @@ public class teeth extends AppCompatActivity {
                     }
                     dialog.dismiss();
                 });
-        firestore.collection("patients")
-                .whereArrayContains("treatment", "Tooth").orderBy("date", Query.Direction.ASCENDING)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (DocumentSnapshot doc : task.getResult()) {
-                            DataClass dataClass = doc.toObject(DataClass.class);
-                            if (dataClass != null) {
-                                dataClass.setKey(doc.getId());
-                                dataList.add(dataClass);
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
-                    } else {
-                        // Handle errors
-                    }
-                });
+
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         finish(); // Finish the detail activity when navigating back
+    }
+
+    private boolean containsIgnoreCase(ArrayList<String> arrayList, String searchString) {
+        if (arrayList != null) {
+            for (String str : arrayList) {
+                if (str != null && str.equalsIgnoreCase(searchString)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

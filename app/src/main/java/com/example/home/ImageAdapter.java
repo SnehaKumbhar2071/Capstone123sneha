@@ -2,18 +2,28 @@ package com.example.home;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
 
@@ -40,10 +50,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
         String imageUrl = imageUrls.get(position);
-        Picasso.get().load(imageUrl).into(holder.gridImage);
-
-        // Set visibility of selection overlay based on the selection mode
-        holder.selectionOverlay.setVisibility(isSelectionMode && selectedImages.contains(imageUrl) ? View.VISIBLE : View.GONE);
+        holder.bind(imageUrl);
     }
 
     @Override
@@ -102,13 +109,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     public class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView gridImage;
         View selectionOverlay;
+        TextView lastModified; // Add TextView for last modified date
 
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             gridImage = itemView.findViewById(R.id.gridImage);
             selectionOverlay = itemView.findViewById(R.id.selectionOverlay);
+            lastModified = itemView.findViewById(R.id.lastmodified); // Initialize TextView for last modified date
 
-            // Set OnClickListener for the image
             // Set OnClickListener for the image
             gridImage.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -130,6 +138,34 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                 }
             });
         }
-    }
 
-}
+        public void bind(String imageUrl) {
+            // Load image using Picasso
+            Picasso.get().load(imageUrl).into(gridImage);
+
+            // Fetch last modified date for the image from Firestore Storage metadata
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            StorageReference imageRef = storage.getReferenceFromUrl(imageUrl);
+            imageRef.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                @Override
+                public void onSuccess(StorageMetadata storageMetadata) {
+                    long lastModifiedTimestamp = storageMetadata.getUpdatedTimeMillis();
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+                    String formattedDate = dateFormat.format(new Date(lastModifiedTimestamp));
+                    SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()); // Corrected time format pattern
+                    String formattedTime = timeFormat.format(new Date(lastModifiedTimestamp));
+                    lastModified.setText("Date: " + formattedDate + " Time: " + formattedTime); // Set last modified date and time
+                }
+
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // Handle failure
+                    Log.e("ImageAdapter", "Failed to fetch metadata: " + e.getMessage());
+                }
+            });
+
+            // Set visibility of selection overlay based on the selection mode
+            selectionOverlay.setVisibility(isSelectionMode && selectedImages.contains(imageUrl) ? View.VISIBLE : View.GONE);
+        }
+    }}

@@ -93,15 +93,17 @@ public class card1 extends AppCompatActivity {
 
     }
 
-    public void searchList(String text){
+    private void searchList(String text) {
         ArrayList<DataClass> searchList = new ArrayList<>();
-        for (DataClass dataClass: dataList){
-            if (dataClass.getFullName().toLowerCase().contains(text.toLowerCase())){
+        for (DataClass dataClass : dataList) {
+            String fullName = dataClass.getFullName();
+            if (fullName != null && text != null && fullName.toLowerCase().contains(text.toLowerCase())) {
                 searchList.add(dataClass);
             }
         }
         adapter.searchDataList(searchList);
     }
+
     @Override
     protected void onResume() {
         super.onResume();

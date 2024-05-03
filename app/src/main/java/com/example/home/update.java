@@ -5,38 +5,44 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class update extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     private static final int REQUEST_GALLERY2 = 2;
-    private EditText fullNameEditText, dateEditText, addressEditText, phoneNumberEditText, dobEditText, genderEditText, statusEditText, treatmentEditText;
+    private EditText fullNameEditText, dateEditText, addressEditText,editFollowUpDate, phoneNumberEditText, dobEditText, genderEditText, statusEditText, treatmentEditText,teethedittext;
     private Button updateButton;
-    private ImageButton addbtn, deletebtn, addbtn2, deletebtn2;
+    private ImageButton addbtn, deletebtn, addbtn2, deletebtn2,addFollowUpDateButton;
     private RecyclerView recyclerView1,recyclerView2;
 
     private String key;
@@ -67,7 +73,12 @@ public class update extends AppCompatActivity implements DatePickerDialog.OnDate
         deletebtn = findViewById(R.id.deletebtn);
         addbtn2 = findViewById(R.id.addbtn2);
         deletebtn2 = findViewById(R.id.deletebtn2);
+        teethedittext=findViewById(R.id.teethedittext);
         recyclerView2=findViewById(R.id.recyclerView2);
+        editFollowUpDate = findViewById(R.id.editFollowUpDate);
+        addFollowUpDateButton = findViewById(R.id.addFollowUpDateBtn);
+
+
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -80,11 +91,23 @@ public class update extends AppCompatActivity implements DatePickerDialog.OnDate
             genderEditText.setText(bundle.getString("gender"));
             statusEditText.setText(bundle.getString("status"));
             treatmentEditText.setText(bundle.getString("treatments"));
+            teethedittext.setText(bundle.getString("Teeth"));
+
 
             recyclerView1 = findViewById(R.id.recyclerView1);
             recyclerView1.setLayoutManager(new GridLayoutManager(this, 2)); // Use GridLayoutManager for multiple images
             recyclerView2 = findViewById(R.id.recyclerView2);
-            recyclerView2.setLayoutManager(new GridLayoutManager(this, 2)); // Use GridLayoutManager for multiple images
+            recyclerView2.setLayoutManager(new GridLayoutManager(this, 2));
+            // Fetch and display follow-up dates
+            ArrayList<String> followUpDates = bundle.getStringArrayList("followUpDates");
+            if (followUpDates != null && !followUpDates.isEmpty()) {
+                StringBuilder followUpDatesBuilder = new StringBuilder();
+                for (String followUpDate : followUpDates) {
+                    followUpDatesBuilder.append(followUpDate).append(", ");
+                }
+                String followUpDatesText = followUpDatesBuilder.substring(0, followUpDatesBuilder.length() - 2);
+                editFollowUpDate.setText(followUpDatesText);
+            }// Use GridLayoutManager for multiple images
 
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             DocumentReference docRef = db.collection("patients").document(key);
@@ -94,16 +117,31 @@ public class update extends AppCompatActivity implements DatePickerDialog.OnDate
                     if (documentSnapshot.exists()) {
                         ArrayList<String> prepostimages = (ArrayList<String>) documentSnapshot.get("prepostimages");
                         if (prepostimages != null) {
-                            // Initialize and set up the adapter
-                            adapter = new ImageAdapter(prepostimages, update.this);
-                            recyclerView1.setAdapter(adapter);
+                            // Sort the list of image URLs based on their last modified date (newest first)
+                            sortImagesByLastModified(prepostimages, new detail.OnImagesSortedListener() {
+                                @Override
+                                public void onImagesSorted(ArrayList<String> sortedImages) {
+                                    // Initialize and set up the adapter for prepostimages
+                                    adapter = new ImageAdapter(sortedImages, update.this);
+                                    recyclerView1.setAdapter(adapter);
+                                }
+                            });
                         }
+
+// Fetch and display prescription images
                         ArrayList<String> prescription = (ArrayList<String>) documentSnapshot.get("prescription");
                         if (prescription != null) {
-                            // Initialize and set up the adapter
-                            adapter2 = new ImageAdapter(prescription, update.this);
-                            recyclerView2.setAdapter(adapter2);
+                            // Sort the list of image URLs based on their last modified date (newest first)
+                            sortImagesByLastModified(prescription, new detail.OnImagesSortedListener() {
+                                @Override
+                                public void onImagesSorted(ArrayList<String> sortedImages) {
+                                    // Initialize and set up the adapter for prescription
+                                    adapter2 = new ImageAdapter(sortedImages, update.this);
+                                    recyclerView2.setAdapter(adapter2);
+                                }
+                            });
                         }
+
                     }
                 }
             });
@@ -152,6 +190,12 @@ public class update extends AppCompatActivity implements DatePickerDialog.OnDate
         deletebtn.setOnClickListener(v -> {
             deleteImages(adapter);
         });
+        addFollowUpDateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDatePickerDialogForFollowUp(); // Function to show DatePickerDialog for follow-up dates
+            }
+        });
 
         deletebtn2.setOnClickListener(v -> {
             deleteImages(adapter2);
@@ -174,6 +218,7 @@ public class update extends AppCompatActivity implements DatePickerDialog.OnDate
             toggleSelectionMode(adapter);
         }
     }
+
 
 
     @Override
@@ -234,6 +279,7 @@ public class update extends AppCompatActivity implements DatePickerDialog.OnDate
 
 
 
+
     private void toggleSelectionMode(ImageAdapter adapter) {
         if (adapter != null) {
             adapter.setSelectMode(!adapter.isSelectionMode());
@@ -251,53 +297,73 @@ public class update extends AppCompatActivity implements DatePickerDialog.OnDate
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference patientRef = db.collection("patients").document(key);
 
-        // Delete existing data associated with the patient key
-        patientRef.delete()
-                .addOnSuccessListener(aVoid -> {
-                    // Once deletion is successful, add the new patient data
-                    Map<String, Object> patientData = new HashMap<>();
-                    patientData.put("fullName", fullNameEditText.getText().toString());
-                    patientData.put("date", dateEditText.getText().toString());
-                    patientData.put("address", addressEditText.getText().toString());
-                    patientData.put("phoneNumber", phoneNumberEditText.getText().toString());
-                    patientData.put("dob", dobEditText.getText().toString());
-                    patientData.put("gender", genderEditText.getText().toString());
-                    patientData.put("status", statusEditText.getText().toString());
-                    patientData.put("treatments", treatmentEditText.getText().toString());
-                    ArrayList<String> prepostImages = (adapter != null && adapter.getImageUrls() != null) ? adapter.getImageUrls() : new ArrayList<>();
+        // Retrieve existing patient data and follow-up dates
+        patientRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Map<String, Object> patientData = documentSnapshot.getData();
 
-// Check if adapter2 is not null and get prescription
-                    ArrayList<String> prescriptionUrls = (adapter2 != null && adapter2.getImageUrls() != null) ? adapter2.getImageUrls() : new ArrayList<>();
+                // Update patient data fields
+                patientData.put("fullName", fullNameEditText.getText().toString());
+                patientData.put("address", addressEditText.getText().toString());
+                patientData.put("phoneNumber", phoneNumberEditText.getText().toString());
+                patientData.put("gender", genderEditText.getText().toString());
+                patientData.put("status", statusEditText.getText().toString());
+                patientData.put("treatments", treatmentEditText.getText().toString());
+                patientData.put("Teeth", teethedittext.getText().toString());
 
-// Add prepostimages to patientData
-                    patientData.put("prepostimages", prepostImages);
+                // Update prepostimages if adapter is not null
+                if (adapter != null && adapter.getImageUrls() != null) {
+                    patientData.put("prepostimages", adapter.getImageUrls());
+                }
 
-// Add prescription to patientData
-                    patientData.put("prescription", prescriptionUrls);
+                // Update prescription if adapter2 is not null
+                if (adapter2 != null && adapter2.getImageUrls() != null) {
+                    patientData.put("prescription", adapter2.getImageUrls());
+                }
 
-                    String treatmentText = treatmentEditText.getText().toString().trim();
-                    if (!treatmentText.isEmpty()) {
-                        String[] treatmentsArray = treatmentText.split("[{},]");                        ArrayList<String> treatmentsList = new ArrayList<>(Arrays.asList(treatmentsArray));
-                        patientData.put("treatment", treatmentsList);
-                    } else {
-                        patientData.put("treatment", new ArrayList<String>()); // Empty array if no treatments entered
-                    }
 
-                    // Add the new patient data to Firestore
-                    db.collection("patients").document(key).set(patientData)
-                            .addOnSuccessListener(documentReference -> {
-                                Toast.makeText(update.this, "Patient data updated successfully", Toast.LENGTH_SHORT).show();
-                                // After updating patient data, upload images to Firebase Storage
-                                uploadImagesToStorage();
 
-                            })
-                            .addOnFailureListener(e -> {
-                                Toast.makeText(update.this, "Failed to update patient data", Toast.LENGTH_SHORT).show();
-                            });
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(update.this, "Failed to delete existing data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                // Add new follow-up dates
+                ArrayList<String> newFollowUpDatesList = new ArrayList<>();
+                String followUpDateText = editFollowUpDate.getText().toString().trim();
+                if (!followUpDateText.isEmpty()) {
+                    String[] newFollowUpDatesArray = followUpDateText.split(",");
+                    newFollowUpDatesList.addAll(Arrays.asList(newFollowUpDatesArray));
+                }
+                Collections.reverse(newFollowUpDatesList);
+
+                // Update follow-up dates
+                patientData.put("followUpDates", newFollowUpDatesList);
+
+                // Update treatment and teeth lists
+                patientData.put("treatment", parseStringToList(treatmentEditText.getText().toString()));
+                patientData.put("Teeth", parseStringToList(teethedittext.getText().toString()));
+
+                // Update the Firestore document
+                patientRef.set(patientData)
+                        .addOnSuccessListener(documentReference -> {
+                            Toast.makeText(update.this, "Patient data updated successfully", Toast.LENGTH_SHORT).show();
+                            // After updating patient data, upload images to Firebase Storage
+                            uploadImagesToStorage();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(update.this, "Failed to update patient data", Toast.LENGTH_SHORT).show();
+                        });
+            } else {
+                Toast.makeText(update.this, "Document does not exist", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(e -> {
+            Toast.makeText(update.this, "Failed to retrieve document: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private ArrayList<String> parseStringToList(String text) {
+        if (!text.isEmpty()) {
+            String[] array = text.split("[{},]");
+            return new ArrayList<>(Arrays.asList(array));
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     private void uploadImagesToStorage() {
@@ -313,13 +379,11 @@ public class update extends AppCompatActivity implements DatePickerDialog.OnDate
             uploadImages("prescription", prescriptionUrls);
 
         }
-        finish();
-        Intent intent = new Intent(update.this, detail.class);
-        intent.putExtra("Key", key);
-        startActivity(intent);
-        finish();
+        Intent finishDetailIntent = new Intent(update.this, detail.class);
+        finishDetailIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(finishDetailIntent);
+        finish(); // Finish the current activ-ity (update)
     }
-
     private void uploadImages(String field, ArrayList<String> imageUrls) {
         // Get a reference to the Firebase Storage
         FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -370,8 +434,6 @@ public class update extends AppCompatActivity implements DatePickerDialog.OnDate
         finish();
     }
 
-
-
     private void showDatePickerDialog() {
         final Calendar c = Calendar.getInstance();
         int year = c.get(Calendar.YEAR);
@@ -382,14 +444,46 @@ public class update extends AppCompatActivity implements DatePickerDialog.OnDate
         datePickerDialog.show();
     }
 
+    private void showDatePickerDialogForFollowUp() {
+        final Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
+                String selectedDate = String.format(Locale.getDefault(), "%02d/%02d/%d", dayOfMonth, month + 1, year);
+                String currentText = editFollowUpDate.getText().toString();
+                if (!currentText.isEmpty()) {
+                    currentText += ", ";
+                }
+                currentText += selectedDate;
+                editFollowUpDate.setText(currentText);
+            }
+        }, year, month, day);
+        datePickerDialog.show();
+    }
+
     @Override
     public void onDateSet(android.widget.DatePicker view, int year, int monthOfYear, int dayOfMonth) {
         String selectedDate = String.format(Locale.getDefault(), "%02d/%02d/%d", dayOfMonth, monthOfYear + 1, year);
 
         if (isDateField) {
-            dateEditText.setText(selectedDate);
+            String currentText = dateEditText.getText().toString();
+            if (!currentText.isEmpty()) {
+                currentText += ", ";
+            }
+            currentText += selectedDate;
+            dateEditText.setText(currentText);
         } else {
-            dobEditText.setText(selectedDate);
+            // For follow-up dates
+            String currentText = editFollowUpDate.getText().toString();
+            if (!currentText.isEmpty()) {
+                currentText += ", ";
+            }
+            currentText += selectedDate;
+            editFollowUpDate.setText(currentText);
         }
     }
     @Override
@@ -397,4 +491,73 @@ public class update extends AppCompatActivity implements DatePickerDialog.OnDate
         super.onBackPressed();
         finish(); // Finish the detail activity when navigating back
     }
-}
+
+    private void sortImagesByLastModified(final ArrayList<String> imageUrls, final detail.OnImagesSortedListener listener) {
+        final int totalImages = imageUrls.size();
+        final ArrayList<update.ImagMetadata> imageMetadataList = new ArrayList<>();
+        final AtomicInteger counter = new AtomicInteger(0);
+        ArrayList<String> sortedImageUrls = new ArrayList<>();
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        for (final String imageUrl : imageUrls) {
+            StorageReference imageRef = storage.getReferenceFromUrl(imageUrl);
+            imageRef.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                @Override
+                public void onSuccess(StorageMetadata storageMetadata) {
+                    Date uploadDate = new Date(storageMetadata.getUpdatedTimeMillis());
+                    imageMetadataList.add(new update.ImagMetadata(imageUrl, uploadDate));
+                    if (counter.incrementAndGet() == totalImages) {
+                        // All metadata retrieved, sort the image URLs based on their metadata
+                        Collections.sort(imageMetadataList);
+                        for (update.ImagMetadata metadata : imageMetadataList) {
+                            sortedImageUrls.add(metadata.getImageUrl());
+                        }
+                        Log.d("Sort", "Sorted image URLs: " + sortedImageUrls.size());
+                        // Notify listener with sorted image URLs
+                        listener.onImagesSorted(sortedImageUrls);
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // Handle failure
+                    Log.e("Sort", "Failed to retrieve metadata for image: " + imageUrl, e);
+                    counter.incrementAndGet(); // Increment counter even in case of failure to prevent deadlock
+                    if (counter.get() == totalImages) {
+                        // If all images have been processed (even in case of failure), notify listener
+                        Collections.sort(imageMetadataList);
+                        for (update.ImagMetadata metadata : imageMetadataList) {
+                            sortedImageUrls.add(metadata.getImageUrl());
+                        }
+                        listener.onImagesSorted(sortedImageUrls);
+                    }
+                }
+            });
+        }
+    }
+
+
+
+    // Class to store image metadata along with the image URL
+    private static class ImagMetadata implements Comparable<update.ImagMetadata> {
+        private String imageUrl;
+        private Date uploadDate;
+
+        public ImagMetadata(String imageUrl, Date uploadDate) {
+            this.imageUrl = imageUrl;
+            this.uploadDate = uploadDate;
+        }
+
+        public String getImageUrl() {
+            return imageUrl;
+        }
+
+        @Override
+        public int compareTo(update.ImagMetadata other) {
+            // Sort in descending order (newest first)
+            return other.uploadDate.compareTo(this.uploadDate);
+        }
+
+        // Interface for the listener to handle sorted images
+
+    }}

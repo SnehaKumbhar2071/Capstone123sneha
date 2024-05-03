@@ -51,7 +51,7 @@
         android:layout_width="175dp"
         android:layout_height="65dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/background_button_intro"
+        android:background="@drawable/ba"
         android:gravity="center"
         android:text="Get Started"
         android:textColor="#ffffff"

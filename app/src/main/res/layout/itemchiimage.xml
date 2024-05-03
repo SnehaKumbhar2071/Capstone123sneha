@@ -1,7 +1,9 @@
 <!-- res/layout/item_imag.xml -->
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/imageView"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/imageViewshruti"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:adjustViewBounds="true"
-    android:scaleType="centerCrop"/>
+    android:scaleType="centerCrop"
+    tools:context="imchaitem" />

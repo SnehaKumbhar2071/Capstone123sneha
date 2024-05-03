@@ -10,12 +10,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class bridges extends AppCompatActivity {
+public class CrownAndBridges extends AppCompatActivity {
     RecyclerView recyclerView;
     List<DataClass> dataList;
     MyAdapter adapter;
@@ -26,19 +25,19 @@ public class bridges extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bridges);
+        setContentView(R.layout.activity_crown_and_bridges);
 
         firestore = FirebaseFirestore.getInstance();
 
-        recyclerView = findViewById(R.id.recyclerView4);
+        recyclerView = findViewById(R.id.recyclerViewcrown);
 
         searchView = findViewById(R.id.search);
         searchView.clearFocus();
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(bridges.this, 1);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(CrownAndBridges.this, 1);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(bridges.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(CrownAndBridges.this);
         builder.setCancelable(false);
         builder.setView(R.layout.progress_layout);
         AlertDialog dialog = builder.create();
@@ -46,21 +45,20 @@ public class bridges extends AppCompatActivity {
 
         dataList = new ArrayList<>();
 
-        adapter = new MyAdapter(bridges.this, dataList);
+        adapter = new MyAdapter(CrownAndBridges.this, dataList);
         recyclerView.setAdapter(adapter);
 
         dialog.show();
 
         // Query Firestore data
         firestore.collection("patients")
-                .whereArrayContains("treatment", "bridge").orderBy("date", Query.Direction.ASCENDING)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         dataList.clear();
                         for (DocumentSnapshot doc : task.getResult()) {
                             DataClass dataClass = doc.toObject(DataClass.class);
-                            if (dataClass != null) {
+                            if (dataClass != null && containsIgnoreCase(dataClass.getTreatment(), "Crown And Bridges")) {
                                 dataClass.setKey(doc.getId());
                                 dataList.add(dataClass);
                             }
@@ -71,23 +69,9 @@ public class bridges extends AppCompatActivity {
                     }
                     dialog.dismiss();
                 });
-        firestore.collection("patients")
-                .whereArrayContains("treatment", "Bridge").orderBy("date", Query.Direction.ASCENDING)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (DocumentSnapshot doc : task.getResult()) {
-                            DataClass dataClass = doc.toObject(DataClass.class);
-                            if (dataClass != null) {
-                                dataClass.setKey(doc.getId());
-                                dataList.add(dataClass);
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
-                    } else {
-                        // Handle errors
-                    }
-                });
+
+// Method to check if an ArrayList of strings contains a specific string (case-insensitive)
+
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -123,21 +107,21 @@ public class bridges extends AppCompatActivity {
 
     private void refreshActivity() {
         // Query Firestore data again to refresh the list
-        AlertDialog.Builder builder = new AlertDialog.Builder(bridges.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(CrownAndBridges.this);
         builder.setCancelable(false);
         builder.setView(R.layout.progress_layout);
         AlertDialog dialog = builder.create();
         dialog.show();
+//        String regex = generateCaseInsensitiveRegex("Brace");
 
         firestore.collection("patients")
-                .whereArrayContains("treatment", "bridge").orderBy("date", Query.Direction.ASCENDING)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         dataList.clear();
                         for (DocumentSnapshot doc : task.getResult()) {
                             DataClass dataClass = doc.toObject(DataClass.class);
-                            if (dataClass != null) {
+                            if (dataClass != null && containsIgnoreCase(dataClass.getTreatment(), "Crown And Bridges")) {
                                 dataClass.setKey(doc.getId());
                                 dataList.add(dataClass);
                             }
@@ -148,28 +132,23 @@ public class bridges extends AppCompatActivity {
                     }
                     dialog.dismiss();
                 });
-        firestore.collection("patients")
-                .whereArrayContains("treatment", "Bridge").orderBy("date", Query.Direction.ASCENDING)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (DocumentSnapshot doc : task.getResult()) {
-                            DataClass dataClass = doc.toObject(DataClass.class);
-                            if (dataClass != null) {
-                                dataClass.setKey(doc.getId());
-                                dataList.add(dataClass);
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
-                    } else {
-                        // Handle errors
-                    }
-                });
+
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         finish(); // Finish the detail activity when navigating back
+    }
+
+    private boolean containsIgnoreCase(ArrayList<String> arrayList, String searchString) {
+        if (arrayList != null) {
+            for (String str : arrayList) {
+                if (str != null && str.equalsIgnoreCase(searchString)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

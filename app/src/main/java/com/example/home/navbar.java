@@ -1,6 +1,5 @@
 package com.example.home;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
@@ -9,7 +8,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -17,45 +15,45 @@ public class navbar extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private FrameLayout frameLayout;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.navbar_activity);
         bottomNavigationView = findViewById(R.id.bv);
-        frameLayout = findViewById(R.id.framelayout); // Corrected ID for frameLayout
+        frameLayout = findViewById(R.id.framelayout);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Fragment fragment = null;
                 int itemId = item.getItemId();
                 if (itemId == R.id.home) {
-                    loadFragment(new home(), false);
+                    fragment = new home();
+                } else if (itemId == R.id.setting) {
+                    fragment = new setting();
+                } else if (itemId == R.id.galleryactivity) {
+                    Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.framelayout);
+                    if (currentFragment instanceof frag) {
+                        fragment = currentFragment;
+                    } else {
+                        fragment = new frag();
+                    }
                 }
-//                else if (itemId == R.id.profile)
-//                {
-//                    loadFragment(new profile(), false);
-//                }
-                else if (itemId == R.id.setting) {
-                    loadFragment(new setting(), false);
-                } else if (itemId == R.id.todo) {
-                    loadFragment(new todo(), false);
-                } else {
 
+                if (fragment != null) {
+                    loadFragment(fragment);
+                    return true;
                 }
-                return true;
+                return false;
             }
         });
-        loadFragment(new home(), true);
+        loadFragment(new home());
     }
 
-    private void loadFragment(Fragment fragment, boolean isAppInitialized) {
+    private void loadFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.framelayout, fragment); // Corrected ID for frameLayout
-        if (!isAppInitialized) {
-            fragmentTransaction.addToBackStack(null);
-        }
-        fragmentTransaction.commit();
+        fragmentManager.beginTransaction()
+                .replace(R.id.framelayout, fragment)
+                .commit();
     }
 }

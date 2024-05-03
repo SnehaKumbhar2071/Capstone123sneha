@@ -103,6 +103,10 @@ class MyViewHolder extends RecyclerView.ViewHolder{
         date = itemView.findViewById(R.id.dateTextView);
         recCard = itemView.findViewById(R.id.recCard);
         fullName = itemView.findViewById(R.id.fullName);
+//        address = itemView.findViewById(R.id.address);
+//        phoneNumber = itemView.findViewById(R.id.phonenum);
+//        dob = itemView.findViewById(R.id.dob);
+//        gender = itemView.findViewById(R.id.gender);
     }
 }
 

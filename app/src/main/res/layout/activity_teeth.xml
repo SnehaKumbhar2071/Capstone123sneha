@@ -20,16 +20,41 @@
         app:closeIcon="@drawable/baseline_add_24"
         app:queryHint="Search..."
         app:searchHintIcon="@null"
-        app:searchIcon="@android:drawable/ic_menu_search" />
+        app:searchIcon="@android:drawable/ic_menu_search" >
+    </androidx.appcompat.widget.SearchView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView3"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/search"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="37dp"
         android:scrollbars="vertical" />
 
-
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="40dp"
+        app:fab_label="@string/app_name"
+        android:backgroundTint="@color/black"
+        android:src="@drawable/baseline_add_24"
+        app:tint="@color/white" />
 
 </RelativeLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

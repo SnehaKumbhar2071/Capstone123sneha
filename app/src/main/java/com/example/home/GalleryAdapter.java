@@ -23,6 +23,12 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         this.context = context;
     }
 
+//    public GalleryAdapter(Context context, ArrayList<Uri> selectedImageUris, frag frag) {
+//    }
+
+//    public GalleryAdapter(Context context, ArrayList<Uri> selectedImageUris, frag frag) {
+//    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

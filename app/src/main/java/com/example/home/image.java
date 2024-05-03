@@ -57,7 +57,9 @@ public class image extends Fragment implements RecyclerAdapter.OnDeleteClickList
     private ProgressBar progressBar;
     private int totalImages = 0;
     private int uploadedImages = 0;
-
+    private static final int REQUEST_CAMERA_PERMISSION = 100;
+    private static final int REQUEST_STORAGE_PERMISSION = 101;
+    private static final int REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION = 100;
     public image() {
         // Required empty public constructor
     }
@@ -67,6 +69,7 @@ public class image extends Fragment implements RecyclerAdapter.OnDeleteClickList
         super.onCreate(savedInstanceState);
         firestore = FirebaseFirestore.getInstance();
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+
     }
 
     @Override
@@ -86,9 +89,17 @@ public class image extends Fragment implements RecyclerAdapter.OnDeleteClickList
         recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 4));
         recyclerView.setAdapter(adapter);
 
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_PERMISSION);
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission not granted, request it
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION);
+        } else {
+            // Permission already granted, perform necessary actions
+            // For example, continue with capturing images or saving files
         }
+
 
         pick.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -113,7 +124,6 @@ public class image extends Fragment implements RecyclerAdapter.OnDeleteClickList
                 ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
             }
         });
-
         delete.setOnClickListener(v -> {
             if (isSelectionMode) {
                 for (ImageItem item : adapter.getSelectedItems()) {
@@ -145,7 +155,6 @@ public class image extends Fragment implements RecyclerAdapter.OnDeleteClickList
             select.setText("Select");
         }
     }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -186,13 +195,18 @@ public class image extends Fragment implements RecyclerAdapter.OnDeleteClickList
         }
     }
 
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            // Permission granted
-        } else {
-            // Permission denied
+        if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, perform necessary actions
+                // For example, continue with capturing images or saving files
+            } else {
+                // Permission denied, handle accordingly (e.g., show a message to the user)
+            }
         }
     }
 
@@ -231,9 +245,10 @@ public class image extends Fragment implements RecyclerAdapter.OnDeleteClickList
             uploadedImages = 0;
 
             // Upload each image to Firebase Storage and store their download URLs in Firestore
-            for (ImageItem item : imageItem) {
+            for (int i = 0; i < imageItem.size(); i++) {
+                ImageItem item = imageItem.get(i);
                 Uri imageUri = item.getImageUri();
-                String imageName = "image_" + System.currentTimeMillis() + ".jpg"; // Generate a unique name for the image
+                String imageName = "image_" + System.currentTimeMillis() + "_" + i + ".jpg"; // Generate a unique name for the image
 
                 // Upload image to Firebase Storage
                 uploadImageToFirebaseStorage(imageUri, imageName);
@@ -242,6 +257,7 @@ public class image extends Fragment implements RecyclerAdapter.OnDeleteClickList
             Toast.makeText(requireContext(), "Patient ID is null", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private void uploadImageToFirebaseStorage(Uri imageUri, String imageName) {
         StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("images/" + imageName);
@@ -253,17 +269,17 @@ public class image extends Fragment implements RecyclerAdapter.OnDeleteClickList
                         // Get the download URL of the uploaded image
                         String imageUrl = uri.toString();
                         // Once you have the download URL, store it in Firestore
-                        uploadedImages++;
                         storeImageUrlInFirestore(imageUrl);
-
                     }).addOnFailureListener(e -> {
                         // Handle failure to get download URL
                         Toast.makeText(requireContext(), "Failed to get download URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                        updateUploadCounter(); // Increment uploaded images count and check if all images have been uploaded
                     });
                 })
                 .addOnFailureListener(e -> {
                     // Handle unsuccessful upload
                     Toast.makeText(requireContext(), "Failed to upload image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                    updateUploadCounter(); // Increment uploaded images count and check if all images have been uploaded
                 });
     }
 
@@ -291,26 +307,21 @@ public class image extends Fragment implements RecyclerAdapter.OnDeleteClickList
                 patientRef.update("prepostimages", prepostimages)
                         .addOnSuccessListener(aVoid -> {
                             // Image URL stored successfully
-                            uploadedImages++; // Increment uploaded images count
-
-                            // Check if all images have been uploaded
-                            if (uploadedImages == totalImages) {
-                                progressBar.setVisibility(View.GONE); // Hide the progress bar
-
-                                // If all images uploaded successfully, navigate to the next fragment
-                                navigateToNextFragment();
-                            }
+                            updateUploadCounter(); // Increment uploaded images count and check if all images have been uploaded
                         })
                         .addOnFailureListener(e -> {
                             // Handle failure
                             Toast.makeText(requireContext(), "Failed to store image URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                            updateUploadCounter(); // Increment uploaded images count and check if all images have been uploaded
                         });
             }).addOnFailureListener(e -> {
                 // Handle failure to retrieve document
                 Toast.makeText(requireContext(), "Failed to retrieve document: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                updateUploadCounter(); // Increment uploaded images count and check if all images have been uploaded
             });
         } else {
             Toast.makeText(requireContext(), "Patient ID is null", Toast.LENGTH_SHORT).show();
+//            updateUploadCounter(); // Increment uploaded images count and check if all images have been uploaded
         }
     }
 
@@ -338,5 +349,15 @@ public class image extends Fragment implements RecyclerAdapter.OnDeleteClickList
         Intent intent = new Intent(requireContext(), ImageZoomActivity.class);
         intent.putExtra("imageUri", imageUri.toString());
         startActivity(intent);
+    }
+    private void updateUploadCounter() {
+        uploadedImages++; // Increment uploaded images count
+
+        // Check if all images have been uploaded
+        if (uploadedImages == totalImages) {
+            // If all images uploaded successfully, hide the progress bar and navigate to the next fragment
+            progressBar.setVisibility(View.GONE); // Hide the progress bar
+            navigateToNextFragment();
+        }
     }
 }

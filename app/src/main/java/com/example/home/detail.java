@@ -1,7 +1,7 @@
 package com.example.home;
-
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,23 +17,28 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class detail extends AppCompatActivity {
 
-    private TextView date, fullName, address, phoneNumber, dob, gender,treatmentss,statuss;
+    private TextView date, fullName, address, phoneNumber, dob, gender, treatmentss, statuss, teethss, followUpDatesTextView;
     private FloatingActionButton deleteButton, editButton;
-    private RecyclerView recyclerView1,recyclerView2;
-    private ArrayList<String> imageUrls = new ArrayList<>();
-    private ArrayList<String> imageUrls2 = new ArrayList<>();
+    private RecyclerView recyclerView1, recyclerView2;
+    private ArrayList<String> followUpDatesList = new ArrayList<>(); // New list to store follow-up dates
+
 
 
     String key = "";
-    private ImageAdapter adapter;
+    private ImageAdapter adapter1;
     private ImageAdapter adapter2;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +54,11 @@ public class detail extends AppCompatActivity {
         recyclerView1 = findViewById(R.id.recyclerView1);
         deleteButton = findViewById(R.id.deleteButton);
         editButton = findViewById(R.id.editButton);
-        recyclerView2=findViewById(R.id.recycler_gallary2);
+        recyclerView2 = findViewById(R.id.recycler_gallary2);
         treatmentss = findViewById(R.id.treatmentss);
         statuss = findViewById(R.id.statuss);
+        teethss = findViewById(R.id.teethss);
+        followUpDatesTextView = findViewById(R.id.followUpDatesTextView); // New TextView for displaying follow-up dates
 
 
         recyclerView1.setLayoutManager(new GridLayoutManager(this, 2)); // Use GridLayoutManager for multiple images
@@ -76,7 +83,8 @@ public class detail extends AppCompatActivity {
                     String gen = documentSnapshot.getString("gender");
                     String appointdate = documentSnapshot.getString("date");
                     String status = documentSnapshot.getString("status");
-                    StringBuilder treat= new StringBuilder();
+                    StringBuilder treat = new StringBuilder();
+
                     List<String> tres = (List<String>) documentSnapshot.get("treatment");
                     if (tres != null) {
                         for (int i = 0; i < tres.size(); i++) {
@@ -86,7 +94,27 @@ public class detail extends AppCompatActivity {
                             }
                         }
                     }
-
+                    StringBuilder teeth2 = new StringBuilder();
+                    List<String> teeth32 = (List<String>) documentSnapshot.get("Teeth");
+                    if (teeth32 != null) {
+                        for (int i = 0; i < teeth32.size(); i++) {
+                            teeth2.append(teeth32.get(i));
+                            if (i < teeth32.size() - 1) {
+                                teeth2.append(","); // Add comma and space if not the last item
+                            }
+                        }
+                    }
+                    List<String> followUpDates = (List<String>) documentSnapshot.get("followUpDates");
+                    if (followUpDates != null) {
+                        followUpDatesList.addAll(followUpDates);
+                        // Display follow-up dates in the TextView
+                        StringBuilder followUpDatesBuilder = new StringBuilder();
+                        for (String followUpDate : followUpDatesList) {
+                            followUpDatesBuilder.append(followUpDate).append("\n");
+                        }
+                        followUpDatesTextView.setText(followUpDatesBuilder.toString());
+                        followUpDatesTextView.setVisibility(View.VISIBLE); // Set visibility to visible
+                    }
 
                     fullName.setText(name);
                     address.setText(add);
@@ -96,23 +124,38 @@ public class detail extends AppCompatActivity {
                     gender.setText(gen);
                     statuss.setText(status);
                     treatmentss.setText(treat.toString());
+                    teethss.setText(teeth2.toString());
 
 
-                    // Get the list of image URLs
+                    // Get the list of image URLs for prepostimages
+                    // Fetch and display prepostimages
                     ArrayList<String> prepostimages = (ArrayList<String>) documentSnapshot.get("prepostimages");
                     if (prepostimages != null) {
-                        imageUrls.addAll(prepostimages);
-                        // Initialize and set up the adapter
-                        adapter = new ImageAdapter(imageUrls, detail.this);
-                        recyclerView1.setAdapter(adapter);
+                        // Sort the list of image URLs based on their last modified date (newest first)
+                        sortImagesByLastModified(prepostimages, new OnImagesSortedListener() {
+                            @Override
+                            public void onImagesSorted(ArrayList<String> sortedImages) {
+                                // Initialize and set up the adapter for prepostimages
+                                adapter1 = new ImageAdapter(sortedImages, detail.this);
+                                recyclerView1.setAdapter(adapter1);
+                            }
+                        });
                     }
+
+// Fetch and display prescription images
                     ArrayList<String> prescription = (ArrayList<String>) documentSnapshot.get("prescription");
                     if (prescription != null) {
-                        imageUrls2.addAll(prescription);
-                        // Initialize and set up the adapter
-                        adapter2 = new ImageAdapter(imageUrls2, detail.this);
-                        recyclerView2.setAdapter(adapter2);
+                        // Sort the list of image URLs based on their last modified date (newest first)
+                        sortImagesByLastModified(prescription, new OnImagesSortedListener() {
+                            @Override
+                            public void onImagesSorted(ArrayList<String> sortedImages) {
+                                // Initialize and set up the adapter for prescription
+                                adapter2 = new ImageAdapter(sortedImages, detail.this);
+                                recyclerView2.setAdapter(adapter2);
+                            }
+                        });
                     }
+
                 }
             }
         });
@@ -128,7 +171,7 @@ public class detail extends AppCompatActivity {
                     public void onSuccess(Void aVoid) {
                         // Handle success
                         Toast.makeText(detail.this, "Patient deleted successfully", Toast.LENGTH_SHORT).show();
-                        Intent i=new Intent(detail.this,MainActivity.class);
+                        Intent i = new Intent(detail.this, card1.class);
                         startActivity(i);
                         finish(); // Close detail activity after deletion
                     }
@@ -149,14 +192,94 @@ public class detail extends AppCompatActivity {
                         .putExtra("fullName", fullName.getText().toString())
                         .putExtra("date", date.getText().toString())
                         .putExtra("address", address.getText().toString())
-                        .putExtra("phoneNumber",phoneNumber.getText().toString())
-                        .putExtra("dob",dob.getText().toString())
-                        .putExtra("gender",gender.getText().toString())
-                        .putExtra("status",statuss.getText().toString())
-                        .putExtra("treatments",treatmentss.getText().toString())
-                        .putExtra("Key", key);
+                        .putExtra("phoneNumber", phoneNumber.getText().toString())
+                        .putExtra("dob", dob.getText().toString())
+                        .putExtra("gender", gender.getText().toString())
+                        .putExtra("status", statuss.getText().toString())
+                        .putExtra("treatments", treatmentss.getText().toString())
+                        .putExtra("Teeth", teethss.getText().toString())
+                        .putExtra("Key", key)
+                        .putExtra("followUpDates", followUpDatesList);
                 startActivity(intent);
+
             }
         });
+    }
+
+    // Method to sort images by their last modified date (newest first)
+    // Method to sort images by their last modified date (newest first)
+    private void sortImagesByLastModified(final ArrayList<String> imageUrls, final OnImagesSortedListener listener) {
+        final int totalImages = imageUrls.size();
+        final ArrayList<ImageMetadata> imageMetadataList = new ArrayList<>();
+        final AtomicInteger counter = new AtomicInteger(0);
+        ArrayList<String> sortedImageUrls = new ArrayList<>();
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        for (final String imageUrl : imageUrls) {
+            StorageReference imageRef = storage.getReferenceFromUrl(imageUrl);
+            imageRef.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                @Override
+                public void onSuccess(StorageMetadata storageMetadata) {
+                    Date uploadDate = new Date(storageMetadata.getUpdatedTimeMillis());
+                    imageMetadataList.add(new ImageMetadata(imageUrl, uploadDate));
+                    if (counter.incrementAndGet() == totalImages) {
+                        // All metadata retrieved, sort the image URLs based on their metadata
+                        Collections.sort(imageMetadataList);
+                        for (ImageMetadata metadata : imageMetadataList) {
+                            sortedImageUrls.add(metadata.getImageUrl());
+                        }
+                        Log.d("Sort", "Sorted image URLs: " + sortedImageUrls.size());
+                        // Notify listener with sorted image URLs
+                        listener.onImagesSorted(sortedImageUrls);
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // Handle failure
+                    Log.e("Sort", "Failed to retrieve metadata for image: " + imageUrl, e);
+                    counter.incrementAndGet(); // Increment counter even in case of failure to prevent deadlock
+                    if (counter.get() == totalImages) {
+                        // If all images have been processed (even in case of failure), notify listener
+                        Collections.sort(imageMetadataList);
+                        for (ImageMetadata metadata : imageMetadataList) {
+                            sortedImageUrls.add(metadata.getImageUrl());
+                        }
+                        listener.onImagesSorted(sortedImageUrls);
+                    }
+                }
+            });
+        }
+    }
+
+    // Class to store image metadata along with the image URL
+    private static class ImageMetadata implements Comparable<ImageMetadata> {
+        private String imageUrl;
+        private Date uploadDate;
+
+        public ImageMetadata(String imageUrl, Date uploadDate) {
+            this.imageUrl = imageUrl;
+            this.uploadDate = uploadDate;
+        }
+
+        public String getImageUrl() {
+            return imageUrl;
+        }
+
+        @Override
+        public int compareTo(ImageMetadata other) {
+            // Sort in descending order (newest first)
+            return other.uploadDate.compareTo(this.uploadDate);
+        }
+    }
+
+    // Interface for the listener to handle sorted images
+    interface OnImagesSortedListener {
+        void onImagesSorted(ArrayList<String> sortedImages);
+    }
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish(); // Finish the detail activity when navigating back
     }
 }

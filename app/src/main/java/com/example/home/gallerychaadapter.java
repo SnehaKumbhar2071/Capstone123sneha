@@ -3,6 +3,7 @@ package com.example.home;
 import android.content.Context;
 import android.net.Uri;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -16,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class gallerychaadapter extends RecyclerView.Adapter<gallerychaadapter.ViewHolder> {
-
     private Context context;
     private List<Uri> imageUris;
     private List<Integer> selectedItems;
@@ -58,6 +58,7 @@ public class gallerychaadapter extends RecyclerView.Adapter<gallerychaadapter.Vi
             }
         });
 
+        // Highlight the item if it's selected
         holder.itemView.setActivated(selectedItems.contains(position));
     }
 
@@ -71,12 +72,15 @@ public class gallerychaadapter extends RecyclerView.Adapter<gallerychaadapter.Vi
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.imageView);
+            imageView = itemView.findViewById(R.id.imageViewshruti);
         }
     }
 
     public interface OnItemClickListener {
         void onItemClick(int position);
+
+        boolean onCreateOptionsMenu(Menu menu);
+
         void onItemLongClick(int position);
     }
 

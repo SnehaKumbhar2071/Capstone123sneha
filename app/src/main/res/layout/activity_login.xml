@@ -57,8 +57,6 @@
                 android:drawablePadding="8dp"
                 android:textColor="@color/black"/>
 
-            <!-- Verification Button -->
-
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="60dp"

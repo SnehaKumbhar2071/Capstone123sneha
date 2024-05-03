@@ -1,4 +1,4 @@
-package com.example.myapp;
+package com.example.home;
 
 public class Patient {
     private  String date;

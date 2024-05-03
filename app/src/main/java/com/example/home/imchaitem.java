@@ -1,33 +1,49 @@
-package com.example.home;
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class imchaitem{
-    private Uri uri;
-    private String uploadDate;
+public class imchaitem implements Parcelable {
+    private Uri imageUri;
+    private String timeStamp;
 
-    public imchaitem(Uri uri, String uploadDate) {
-        this.uri = uri;
-        this.uploadDate = uploadDate;
+    public imchaitem(Uri imageUri, String timeStamp) {
+        this.imageUri = imageUri;
+        this.timeStamp = timeStamp;
     }
 
-    public Uri getUri() {
-        return uri;
+    protected imchaitem(Parcel in) {
+        imageUri = in.readParcelable(Uri.class.getClassLoader());
+        timeStamp = in.readString();
     }
 
-    public String getUploadDate() {
-        return uploadDate;
-    }
+    public static final Creator<imchaitem> CREATOR = new Creator<imchaitem>() {
+        @Override
+        public imchaitem createFromParcel(Parcel in) {
+            return new imchaitem(in);
+        }
+
+        @Override
+        public imchaitem[] newArray(int size) {
+            return new imchaitem[size];
+        }
+    };
 
     public Uri getImageUri() {
-        return uri; // Return the image URI
+        return imageUri;
     }
 
-    public Object getImageUrl() {
-        return getImageUrl();
+    public String getTimeStamp() {
+        return timeStamp;
     }
 
-    public String getId() {
-        return getId();
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(imageUri, flags);
+        dest.writeString(timeStamp);
     }
 }
-

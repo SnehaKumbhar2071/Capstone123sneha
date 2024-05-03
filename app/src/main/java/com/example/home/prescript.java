@@ -1,16 +1,6 @@
 package com.example.home;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,339 +12,163 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 
-public class prescript extends Fragment implements RecyclerAdapter.OnDeleteClickListener, RecyclerAdapter.OnImageClickListener {
+public class prescript extends Fragment {
     private SharedViewModel sharedViewModel;
 
-    private RecyclerView recyclerView;
-    private static int totalImagess = 0;
-    private int uploadedImagess = 0;
     private ProgressBar progressBar;
     private ArrayList<String> treatments = new ArrayList<>();
+    private ArrayList<String> teeth32 = new ArrayList<>();
     private TextView textView;
-    private Button pick, capture, delete, select, nextfrag2;
-    private boolean isSelectionMode = false;
-    private ArrayList<ImageItem> imageItems = new ArrayList<>();
-    RecyclerAdapter adapter;
-    private FirebaseFirestore firestore;
-    private static final int READ_PERMISSION = 101;
-    private static final int REQUEST_GALLERY = 1;
-    private static final int REQUEST_CAMERA = 2;
-    private CheckBox c1, c2, c3, c4;
+    private Button nextfrag3;
+    private CheckBox c1, c2, c3, c4,c5,c6,c7,c8;
+    private CheckBox t18,t17,t16,t15,t14,t13,t12,t11,t21,t22,t23,t24,t25,t26,t27,t28,t48,t47,t46,t45,t44,t43,t42,t41,t31,t32,t33,t34,t35,t36,t37,t38;
 
-    public prescript() {
-        // Required empty public constructor
-    }
+    private FirebaseFirestore firestore;
+
+    public prescript() {}
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        firestore = FirebaseFirestore.getInstance();
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        firestore = FirebaseFirestore.getInstance();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_prescript, container, false);
-        textView = view.findViewById(R.id.totalphotos);
-        recyclerView = view.findViewById(R.id.recycler_gallary);
-        pick = view.findViewById(R.id.pick);
-        capture = view.findViewById(R.id.capture);
-        delete = view.findViewById(R.id.delete);
-        select = view.findViewById(R.id.select);
-        nextfrag2 = view.findViewById(R.id.nextfrag3);
-        c1 = view.findViewById(R.id.checkbox_brace);
-        c2 = view.findViewById(R.id.checkbox_bridge);
-        c3 = view.findViewById(R.id.checkbox_root);
         progressBar = view.findViewById(R.id.progressBar2);
-        c4 = view.findViewById(R.id.checkbox_teeth);
+        nextfrag3 = view.findViewById(R.id.nextfrag3);
+        c1 = view.findViewById(R.id.checkbox_filling);
+        c2 = view.findViewById(R.id.checkbox_periodontics);
+        c3 = view.findViewById(R.id.checkbox_laminants);
+        c4 = view.findViewById(R.id.checkbox_implants);
+        c5 = view.findViewById(R.id.checkbox_crown);
+        c6 = view.findViewById(R.id.checkbox_extraction);
+        c7 = view.findViewById(R.id.checkbox_bridge);
+        c8 = view.findViewById(R.id.checkbox_rc);
+        t18 = view.findViewById(R.id.t18);
+        t17 = view.findViewById(R.id.t17);
+        t16 = view.findViewById(R.id.t16);
+        t15 = view.findViewById(R.id.t15);
+        t14 = view.findViewById(R.id.t14);
+        t13 = view.findViewById(R.id.t13);
+        t12 = view.findViewById(R.id.t12);
+        t11 = view.findViewById(R.id.t11);
+        t21 = view.findViewById(R.id.t21);
+        t22 = view.findViewById(R.id.t22);
+        t23 = view.findViewById(R.id.t23);
+        t24 = view.findViewById(R.id.t24);
+        t25 = view.findViewById(R.id.t25);
+        t26 = view.findViewById(R.id.t26);
+        t27 = view.findViewById(R.id.t27);
+        t28 = view.findViewById(R.id.t28);
+        t48 = view.findViewById(R.id.t48);
+        t47 = view.findViewById(R.id.t47);
+        t46 = view.findViewById(R.id.t46);
+        t45 = view.findViewById(R.id.t45);
+        t44 = view.findViewById(R.id.t44);
+        t43 = view.findViewById(R.id.t43);
+        t42 = view.findViewById(R.id.t42);
+        t41 = view.findViewById(R.id.t41);
+        t31 = view.findViewById(R.id.t31);
+        t32 = view.findViewById(R.id.t32);
+        t33 = view.findViewById(R.id.t33);
+        t34 = view.findViewById(R.id.t34);
+        t35 = view.findViewById(R.id.t35);
+        t36 = view.findViewById(R.id.t36);
+        t37 = view.findViewById(R.id.t37);
+        t38 = view.findViewById(R.id.t38);
 
-        adapter = new RecyclerAdapter(imageItems, this, this);
-        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 4));
-        recyclerView.setAdapter(adapter);
+        nextfrag3.setOnClickListener(v -> {
+            if (c1.isChecked()) treatments.add("Fillings");
+            if (c2.isChecked()) treatments.add("Root Canal");
+            if (c3.isChecked()) treatments.add("Extractions");
+            if (c4.isChecked()) treatments.add("Laser Surgery");
+            if (c5.isChecked()) treatments.add("Crown And Bridges");
+            if (c6.isChecked()) treatments.add("Laminants");
+            if (c7.isChecked()) treatments.add("Implants");
+            if (c8.isChecked()) treatments.add("Periodontics");
+            if (t18.isChecked()) teeth32.add("18");
+            if (t17.isChecked()) teeth32.add("17");
+            if (t16.isChecked()) teeth32.add("16");
+            if (t15.isChecked()) teeth32.add("15");
+            if (t14.isChecked()) teeth32.add("14");
+            if (t13.isChecked()) teeth32.add("13");
+            if (t12.isChecked()) teeth32.add("12");
+            if (t11.isChecked()) teeth32.add("11");
+            if (t21.isChecked()) teeth32.add("21");
+            if (t22.isChecked()) teeth32.add("22");
+            if (t23.isChecked()) teeth32.add("23");
+            if (t24.isChecked()) teeth32.add("24");
+            if (t25.isChecked()) teeth32.add("25");
+            if (t26.isChecked()) teeth32.add("26");
+            if (t27.isChecked()) teeth32.add("27");
+            if (t28.isChecked()) teeth32.add("28");
+            if (t48.isChecked()) teeth32.add("48");
+            if (t47.isChecked()) teeth32.add("47");
+            if (t46.isChecked()) teeth32.add("46");
+            if (t45.isChecked()) teeth32.add("45");
+            if (t44.isChecked()) teeth32.add("44");
+            if (t43.isChecked()) teeth32.add("43");
+            if (t42.isChecked()) teeth32.add("42");
+            if (t41.isChecked()) teeth32.add("41");
+            if (t31.isChecked()) teeth32.add("31");
+            if (t32.isChecked()) teeth32.add("32");
+            if (t33.isChecked()) teeth32.add("33");
+            if (t34.isChecked()) teeth32.add("34");
+            if (t35.isChecked()) teeth32.add("35");
+            if (t36.isChecked()) teeth32.add("36");
+            if (t37.isChecked()) teeth32.add("37");
+            if (t38.isChecked()) teeth32.add("38");
 
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_PERMISSION);
-        }
-
-        pick.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("image/*");
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-            startActivityForResult(Intent.createChooser(intent, "Select Pictures"), REQUEST_GALLERY);
-        });
-
-        capture.setOnClickListener(v -> {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                if (requireActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-                    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
-                        startActivityForResult(takePictureIntent, REQUEST_CAMERA);
-                    } else {
-                        Toast.makeText(requireContext(), "No camera app available", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(requireContext(), "No camera feature available on this device", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
-            }
-        });
-
-        delete.setOnClickListener(v -> {
-            if (isSelectionMode) {
-                for (ImageItem item : adapter.getSelectedItems()) {
-                    imageItems.remove(item);
-                }
-                adapter.clearSelection();
-                toggleSelectionMode();
-            }
-        });
-
-        select.setOnClickListener(v -> toggleSelectionMode());
-
-        nextfrag2.setOnClickListener(v -> {
-            if (c1.isChecked()) {
-                treatments.add("Brace");
-            }
-            if (c2.isChecked()) {
-                treatments.add("Bridge");
-            }
-            if (c3.isChecked()) {
-                treatments.add("Root");
-            }
-            if (c4.isChecked()) {
-                treatments.add("Tooth");
-            }
             progressBar.setVisibility(View.VISIBLE);
-            saveImagesToDatabase();
+            savedata();
         });
 
         return view;
     }
 
-    private void toggleSelectionMode() {
-        isSelectionMode = !isSelectionMode;
-        adapter.setSelectMode(isSelectionMode);
-        if (isSelectionMode) {
-            delete.setVisibility(View.VISIBLE);
-            select.setText("Cancel");
-        } else {
-            delete.setVisibility(View.GONE);
-            select.setText("Select");
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == REQUEST_CAMERA && data != null) {
-                Bundle extras = data.getExtras();
-                if (extras != null) {
-                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    if (imageBitmap != null) {
-                        Uri imageUri = getImageUri(requireContext(), imageBitmap);
-                        if (imageUri != null) {
-                            String date = getCurrentDate();
-                            imageItems.add(0, new ImageItem(imageUri, date));
-                            adapter.notifyDataSetChanged();
-                            textView.setText("Photos (" + imageItems.size() + ")");
-                        } else {
-                            Toast.makeText(requireContext(), "Failed to capture image", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-            }  else if (requestCode == REQUEST_GALLERY && data != null) {
-                if (data.getClipData() != null) {
-                    int count = data.getClipData().getItemCount();
-                    for (int i = 0; i < count; i++) {
-                        Uri imageUri = data.getClipData().getItemAt(i).getUri();
-                        String date = getCurrentDate();
-                        imageItems.add(new ImageItem(imageUri, date)); // Add at the end of the list
-                    }
-                } else if (data.getData() != null) {
-                    Uri imageUri = data.getData();
-                    String date = getCurrentDate();
-                    imageItems.add(new ImageItem(imageUri, date)); // Add at the end of the list
-                }
-                adapter.notifyDataSetChanged();
-                textView.setText("Photos (" + imageItems.size() + ")");
-            }
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            // Permission granted
-        } else {
-            // Permission denied
-        }
-    }
-
-    private Uri getImageUri(Context context, Bitmap bitmap) {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        ContentResolver resolver = context.getContentResolver();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, imageFileName);
-        contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        Uri uri = null;
-        try {
-            uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-            OutputStream outputStream = resolver.openOutputStream(uri);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-            if (outputStream != null) {
-                outputStream.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return uri;
-    }
-
-    private String getCurrentDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
-        return sdf.format(new Date());
-    }
-
-    private void saveImagesToDatabase() {
+    private void savedata() {
+//        Map<String, Object> data = new HashMap<>();
+//        data.put("treatments", treatments);
+//        data.put("teeth32", teeth32);
         String patientId = sharedViewModel.getPatientId();
+        DocumentReference patientRef = firestore.collection("patients").document(patientId);
 
-        if (patientId != null) {
-            progressBar.setVisibility(View.VISIBLE); // Show progress bar
-            totalImagess=imageItems.size();
-            // Upload each image to Firebase Storage and store their download URLs in Firestore
-            for (ImageItem item : imageItems) {
-                Uri imageUri = item.getImageUri();
-                String imageName = "image_" + System.currentTimeMillis() + ".jpg"; // Generate a unique name for the image
-
-                // Upload image to Firebase Storage
-                uploadImageToFirebaseStorage(imageUri, imageName);
-            }
-        } else {
-            Toast.makeText(requireContext(), "Patient ID is null", Toast.LENGTH_SHORT).show();
-        }
-
-
-    }
-
-    private void uploadImageToFirebaseStorage(Uri imageUri, String imageName) {
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("images/" + imageName);
-        storageRef.putFile(imageUri)
-                .addOnSuccessListener(taskSnapshot -> {
-                    // Image uploaded successfully
-
-                    // Now get the download URL of the uploaded image
-                    storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                        // Get the download URL of the uploaded image
-                        String imageUrl = uri.toString();
-                        // Once you have the download URL, store it in Firestore
-                        uploadedImagess++;
-                        storeImageUrlInFirestore(imageUrl);
-                    }).addOnFailureListener(e -> {
-                        // Handle failure to get download URL
-                        Toast.makeText(requireContext(), "Failed to get download URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        progressBar.setVisibility(View.GONE); // Hide progress bar on failure
-                    });
+        ArrayList<String> prescription = new ArrayList<String>();
+        patientRef.update("prescription", prescription, "treatment", treatments,"Teeth",teeth32)                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        progressBar.setVisibility(View.GONE);
+                        navigateToNextFragment();
+                    }
                 })
-                .addOnFailureListener(e -> {
-                    // Handle unsuccessful upload
-                    Toast.makeText(requireContext(), "Failed to upload image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    progressBar.setVisibility(View.GONE); // Hide progress bar on failure
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressBar.setVisibility(View.GONE);
+                        Toast.makeText(requireContext(), "Failed to save data", Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 
-    private void storeImageUrlInFirestore(String imageUrl) {
-        String patientId = sharedViewModel.getPatientId();
-        if (patientId != null) {
-            // Update Firestore document with the image URL
-            DocumentReference patientRef = firestore.collection("patients").document(patientId);
-
-            // Increment total images count
-
-            // Get the current list of image URLs from Firestore
-            patientRef.get().addOnSuccessListener(documentSnapshot -> {
-                ArrayList<String> prescription = (ArrayList<String>) documentSnapshot.get("prescription");
-                if (prescription == null) {
-                    prescription = new ArrayList<>();
-                }
-
-                // Check if the image URL already exists
-                if (!prescription.contains(imageUrl)) {
-                    // If not, add it to the list
-                    prescription.add(imageUrl);
-
-                    // Update the Firestore document with the new list of image URLs
-                    patientRef.update("prescription", prescription, "treatment", treatments)
-                            .addOnSuccessListener(aVoid -> {
-                                // Image URL stored successfully
-                                uploadedImagess++; // Increment uploaded images count
-
-                                // Check if all images have been uploaded
-                                if (uploadedImagess == totalImagess) {
-                                    // If all images uploaded successfully, navigate to the next fragment
-                                    progressBar.setVisibility(View.GONE); // Hide the progress bar
-                                    navigateToNextFragment();
-                                }
-                            })
-                            .addOnFailureListener(e -> {
-                                // Handle failure
-                                Toast.makeText(requireContext(), "Failed to store image URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            });
-                }
-
-            }).addOnFailureListener(e -> {
-                // Handle failure to retrieve document
-                Toast.makeText(requireContext(), "Failed to retrieve document: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            });
-        } else {
-            Toast.makeText(requireContext(), "Patient ID is null", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    public void onDeleteClick(int position) {
-        if (!isSelectionMode) {
-            imageItems.remove(position);
-            adapter.notifyDataSetChanged();
-            textView.setText("Photos (" + imageItems.size() + ")");
-        } else {
-            adapter.toggleSelection(position);
-        }
-    }
     private void navigateToNextFragment() {
         if (getActivity() instanceof NavigationListener) {
             ((NavigationListener) getActivity()).navigateToNextFragment();
         } else {
             Toast.makeText(requireContext(), "NavigationListener not implemented in activity", Toast.LENGTH_SHORT).show();
         }
-    }
-    @Override
-    public void onImageClick(Uri imageUri) {
-        Intent intent = new Intent(requireContext(), ImageZoomActivity.class);
-        intent.putExtra("imageUri", imageUri.toString());
-        startActivity(intent);
     }
 }

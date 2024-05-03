@@ -34,7 +34,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
-                android:text="Date : "
+                android:text="Registration Date : "
                 android:layout_gravity="center"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -45,6 +45,27 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:id="@+id/appointmentdate"
+                android:textSize="18sp"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="10dp"
+                android:text="Follow Up Date : "
+                android:textSize="18sp"
+                android:textStyle="bold" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:id="@+id/followUpDatesTextView"
                 android:textSize="18sp"
                 />
         </LinearLayout>
@@ -162,6 +183,27 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
+                android:text="Teeth :"
+                android:layout_gravity="center"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:id="@+id/teethss"
+                android:textSize="18sp"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
                 android:text="Payment status :"
                 android:layout_gravity="center"
                 android:textSize="18sp"
@@ -175,10 +217,6 @@
                 android:textSize="18sp"
                 />
         </LinearLayout>
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -197,7 +235,8 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recyclerView1"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="wrap_content"
+                    android:scrollbars="vertical"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -216,7 +255,7 @@
                     android:scrollbarStyle="outsideInset" />
 
             </LinearLayout>
-        </ScrollView>
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">

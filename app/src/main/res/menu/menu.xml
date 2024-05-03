@@ -6,8 +6,8 @@
         android:id="@+id/home"
    android:icon="@drawable/img_1" />
 
-    <item android:title="Todo"
-        android:id="@+id/todo"
+    <item android:title="Galleryactivity"
+        android:id="@+id/galleryactivity"
         android:icon="@drawable/img_2"
 
         />

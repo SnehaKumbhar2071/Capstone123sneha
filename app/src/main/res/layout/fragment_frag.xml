@@ -4,17 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".card2"
-    android:id="@+id/img">
+    tools:context=".frag">
 
-    <!--    <Button-->
-    <!--        android:id="@+id/nextfrag2"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_gravity="center"-->
-    <!--        android:layout_marginTop="5dp"-->
-    <!--        android:backgroundTint="#131A42"-->
-    <!--        android:text="Next" />-->
+
+
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -22,8 +15,9 @@
         android:layout_gravity="center"
         android:orientation="horizontal">
 
+
         <Button
-            android:id="@+id/pick"
+            android:id="@+id/picksss"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -31,38 +25,35 @@
             android:backgroundTint="#131A42"
             android:text="Pick" />
 
-        <!--        <Button-->
-        <!--            android:id="@+id/capture"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:text="Capture"-->
-        <!--            android:backgroundTint="#131A42"-->
-        <!--            android:layout_gravity="center"-->
-        <!--            android:layout_marginTop="5dp"/>-->
 
         <Button
-            android:id="@+id/select"
+            android:id="@+id/selectsss"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Select"
             android:layout_gravity="center"
             android:backgroundTint="#131A42"
-            android:layout_marginTop="5dp"/>
+            android:layout_marginTop="5dp"
+            />
+
+
+
+
 
     </LinearLayout>
-
     <Button
-        android:id="@+id/delete"
+        android:id="@+id/deletesss"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Delete"
         android:layout_gravity="center"
         android:backgroundTint="#131A42"
         android:layout_marginTop="5dp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        />
 
     <TextView
-        android:id="@+id/totalphotos"
+        android:id="@+id/totalphotossss"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -72,33 +63,17 @@
         android:textColor="@color/white"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_gallery15"
+        android:id="@+id/recycler_gallarysss"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbarStyle="outsideInset"
         android:layout_marginTop="5dp"/>
 
-    <TextView
-        android:id="@+id/savedimagetitleshruti"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="10dp"
-        android:text="Saved Images"
-        android:textSize="20sp"
-        android:textStyle="bold"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_saved_imagesshruti"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="vertical"
-        android:layout_marginTop="5dp"/>
-
     <ImageView
-        android:id="@+id/zoomImageView"
+        android:id="@+id/zoomImageViewsss"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
+
 
 </LinearLayout>

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="8dp"
-    tools:context=".bridges">
+    tools:context=".CrownAndBridges">
 
     <androidx.appcompat.widget.SearchView
         android:id="@+id/search"
@@ -20,16 +20,29 @@
         app:closeIcon="@drawable/baseline_add_24"
         app:queryHint="Search..."
         app:searchHintIcon="@null"
-        app:searchIcon="@android:drawable/ic_menu_search" />
+        app:searchIcon="@android:drawable/ic_menu_search" >
+    </androidx.appcompat.widget.SearchView>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView4"
+        android:id="@+id/recyclerViewcrown"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/search"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="37dp"
         android:scrollbars="vertical" />
 
-
-
 </RelativeLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
